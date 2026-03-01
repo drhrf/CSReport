@@ -21,6 +21,39 @@ along with institutional branding assets and rendering instructions.
 
 ---
 
+## Proposed framework
+
+```mermaid
+flowchart TD
+    subgraph left[ ]
+        A[Experimental data collected and deposited in versioned repository]
+        A --> C[CSR authored/reviewed using template]
+        C --> W[CSR sections completed]
+        W --> J[Internal review by PI and analyst]
+    end
+
+    subgraph right[ ]
+        K[CSR version code assigned]
+        L[Manuscript submitted referencing CSR]
+        N[Peer review]
+        O[CSR and code deposited to public repository]
+        K --> L
+        L --> N
+    end
+
+    J -->|Approved| K
+    J -->|Revisions needed| C
+    N -->|Statistical revision requested| C
+    N -->|Published| O
+
+    style A fill:#fff3cd,stroke:#333
+    style O fill:#d4edda,stroke:#333
+    style J fill:#fff3cd,stroke:#333
+    style N fill:#fff3cd,stroke:#333
+    style left fill:none,stroke:none
+    style right fill:none,stroke:none
+```
+
 ## Repository Contents
 ```
 CSReport/
