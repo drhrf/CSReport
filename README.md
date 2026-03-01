@@ -162,7 +162,7 @@ Creative Commons 4.0
 Bertrand Russell Research Excellence Group (NEC), Health Informatics Laboratory (LabInfoS)  
 School of Medicine, Rio de Janeiro State University (UERJ)  
 Rio de Janeiro, Brazil  
-Email: [labinfos.uerj@gmail.com]
+Email: [labinfos.uerj@gmail.com](labinfos.uerj@gmail.com)
 
 
 *Issues and pull requests are welcome.*
