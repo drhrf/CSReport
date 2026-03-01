@@ -1,0 +1,316 @@
+---
+title: "Companion Statistical Report"
+lang: en
+fontsize: 11pt
+geometry: margin=2.5cm
+
+format:
+  pdf:
+    pdf-engine: xelatex
+    toc: true
+    number-sections: true
+    keep-tex: true
+    include-before-body: nec_params.tex   # Written by the first R chunk below
+
+params:
+  manuscript_title:        "Title of the associated manuscript"
+  principal_investigator:  "Name of the principal investigator"
+  statistical_analyst:     "Name of the statistical analyst"
+  version_code:            "NECS00V00D0000"
+  logo_path:               "NEC_logo.jpeg"
+  confidentiality:         "Supplementary material for peer review."
+
+header-includes:
+  - \usepackage{graphicx}
+  - \usepackage{fancyhdr}
+  - \usepackage{titling}
+  - \usepackage{booktabs}
+  - \usepackage{array}
+  - \usepackage{setspace}
+  - \usepackage{hyperref}
+  - \hypersetup{colorlinks=true, linkcolor=black, urlcolor=black, citecolor=black}
+  - \setlength{\parskip}{0.35em}
+  - \setlength{\parindent}{0pt}
+  - \pagestyle{fancy}
+  - \fancyhf{}
+  - \setlength{\headheight}{28pt}
+  - \fancyhead[C]{\includegraphics[height=1.1cm]{\logoNEC}}
+  - \fancyfoot[C]{\thepage}
+  - \renewcommand{\headrulewidth}{0pt}
+  - \renewcommand{\footrulewidth}{0pt}
+  - \fancypagestyle{plain}{\fancyhf{}\fancyhead[C]{\includegraphics[height=1.1cm]{\logoNEC}}\renewcommand{\headrulewidth}{0pt}\renewcommand{\footrulewidth}{0pt}}
+  # Placeholder commands — all overridden at runtime by nec_params.tex
+  - \newcommand{\logoNEC}{NEC_logo.jpeg}
+  - \newcommand{\paramTitle}{Title of the associated manuscript}
+  - \newcommand{\paramPI}{Name of the principal investigator}
+  - \newcommand{\paramAnalyst}{Name of the statistical analyst}
+  - \newcommand{\paramVersion}{NECS00V00D0000}
+  - \newcommand{\paramDate}{\today}
+  - \newcommand{\paramConfidential}{Supplementary material for peer review.}
+---
+
+```{r}
+#| label: write-params-tex
+#| include: false
+
+# ---------------------------------------------------------------
+# PURPOSE: Write nec_params.tex, which redefines the \param*
+# commands (declared with placeholder values in header-includes)
+# with the actual runtime values from params.
+#
+# WHY THIS APPROACH:
+#   - header-includes is static YAML: it cannot read params.
+#   - cat() output from a chunk lands in the document BODY,
+#     after \begin{document}, so \newcommand definitions there
+#     are invisible to content appearing before them (e.g., a
+#     title page at the very start of the body).
+#   - include-before-body inserts a raw .tex file at the very
+#     top of the LaTeX body, before any other content, making
+#     all \renewcommand definitions available everywhere.
+# ---------------------------------------------------------------
+
+latex_safe <- function(x) {
+  x <- gsub("\\\\", "\\\\textbackslash{}", x)
+  x <- gsub("([&%$#_{}])", "\\\\\\1", x)
+  x <- gsub("~",   "\\\\textasciitilde{}",  x)
+  x <- gsub("\\^", "\\\\textasciicircum{}", x)
+  x
+}
+
+logo    <- params$logo_path
+codigo  <- params$version_code
+pattern <- "^NECS\\d{2}V\\d{2}D\\d{4}$"
+
+if (!grepl(pattern, codigo)) {
+  stop(
+    "Invalid version code. Required format: NECSXXVXXDXXXX (e.g. NECS01V03D0042).",
+    call. = FALSE
+  )
+}
+if (!file.exists(logo)) {
+  stop(paste0("Logo not found: '", logo, "'. Check params$logo_path."), call. = FALSE)
+}
+
+writeLines(c(
+  sprintf("\\renewcommand{\\logoNEC}{%s}",           latex_safe(logo)),
+  sprintf("\\renewcommand{\\paramTitle}{%s}",        latex_safe(params$manuscript_title)),
+  sprintf("\\renewcommand{\\paramPI}{%s}",           latex_safe(params$principal_investigator)),
+  sprintf("\\renewcommand{\\paramAnalyst}{%s}",      latex_safe(params$statistical_analyst)),
+  sprintf("\\renewcommand{\\paramVersion}{%s}",      latex_safe(params$version_code)),
+  sprintf("\\renewcommand{\\paramDate}{%s}",         format(Sys.Date(), "%B %d, %Y")),
+  sprintf("\\renewcommand{\\paramConfidential}{%s}", latex_safe(params$confidentiality)),
+  "\\vspace*{-7.5cm}",
+  "\\begin{center}",
+  sprintf("\\includegraphics[height=2.6cm]{%s}", latex_safe(logo)),
+  "\\end{center}",
+  "\\bigskip",
+  "\\vspace*{1.5cm}"
+), "nec_params.tex")
+``` 
+
+```{r}
+#| label: setup
+#| include: false
+
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+# Core packages — extend as needed for the specific analysis
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+```
+
+```{python}
+#| label: setup-python
+#| include: false
+#| eval: false
+
+# Uncomment and set eval: true when using Python engine
+# import pandas as pd
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# import statsmodels.formula.api as smf
+# from scipy import stats
+```
+
+\thispagestyle{empty}
+\begin{center}
+
+\vspace*{\fill}
+
+\begin{minipage}{0.75\textwidth}
+\centering
+
+{\LARGE \textbf{\paramTitle}}
+
+\vspace{0.8cm}
+
+{\large Companion Statistical Report}
+
+\vspace{0.4cm}
+
+{\normalsize Bertrand Russell Research Excellence Group, School of Medicine, UERJ}
+
+\vspace{1.2cm}
+
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\bfseries}p{5.5cm} p{7.0cm}}
+Principal Investigator  & \paramPI \\
+Statistical Analyst     & \paramAnalyst \\
+Version Code            & \paramVersion \\
+Date                    & \paramDate \\
+\end{tabular}
+
+\vspace{1.2cm}
+
+{\small \paramConfidential}
+
+\end{minipage}
+\end{center}
+\vspace*{\fill}
+
+\newpage
+
+# About this document
+
+This Companion Statistical Report (CSR) is a supplementary document submitted and reviewed alongside the main manuscript. It provides full transparency into the statistical workflow underpinning all quantitative claims in the paper, from raw data to final inference. Analysts are encouraged to write in a narrative style that explains *why* each methodological choice was made, not only *what* was done.
+
+This template was developed by the Bertrand Russell Research Excellence Group (NEC) at the School of Medicine, Rio de Janeiro State University (UERJ), as part of a framework for reproducible statistical reporting in experimental neuroscience.
+
+# Analysis request and scope
+
+This version corresponds to request **`r params$version_code`**.
+
+*(Describe the scope of this analytical iteration: research questions addressed, outcomes of interest, pre-specified hypotheses, and any changes relative to a previous version. Include acceptance criteria where applicable.)*
+
+# Data provenance and preprocessing
+
+## Data source and collection
+
+*(Describe where the data came from, how and when it was collected, the instrument or assay used, and any relevant experimental conditions, animal model, cell line, treatment groups, time points, etc. Reference the Materials and Methods of the main manuscript as appropriate.)*
+
+## Data import
+
+```{r}
+#| label: data-import
+
+# Replace with actual data import
+# data_raw <- read_csv("data/raw/experiment_data.csv")
+
+# Python alternative:
+# data_raw = pd.read_csv("data/raw/experiment_data.csv")
+```
+
+## Cleaning and Exclusions
+
+*(Document all preprocessing steps explicitly: handling of missing values, outlier criteria and decisions, unit conversions, variable recoding. Every exclusion must be justified and logged here.)*
+
+```{r}
+#| label: data-cleaning
+
+# data_clean <- data_raw |>
+#   filter(!is.na(outcome_variable)) |>
+#   mutate(group = factor(group, levels = c("control", "treatment")))
+```
+
+# Exploratory data analysis
+
+*(Before any inferential model, summarize the data: sample sizes per group, distributions of key variables, missing data patterns, and any unexpected features. Exploratory figures should inform the modeling strategy.)*
+
+```{r}
+#| label: eda-summary
+#| fig-cap: "Exploratory summary of primary outcome by group."
+
+# data_clean |>
+#   ggplot(aes(x = group, y = outcome_variable, fill = group)) +
+#   geom_boxplot(outlier.shape = NA, alpha = 0.6) +
+#   geom_jitter(width = 0.15, size = 1.5) +
+#   labs(x = "Group", y = "Outcome Variable") +
+#   theme_minimal(base_size = 12)
+```
+
+# Statistical models
+
+## Model specification
+
+*(Describe the statistical model(s) used. Justify the choice of family, link function, and random effects structure based on the data-generating process and the biological question, not on convention. State assumptions explicitly.)*
+
+```{r}
+#| label: model-fit
+
+# Example: linear mixed-effects model
+# library(lme4)
+# model_main <- lmer(outcome ~ group * timepoint + (1 | subject_id),
+#                    data = data_clean, REML = TRUE)
+# summary(model_main)
+```
+
+## Assumption checks
+
+*(Check and report: normality of residuals, homoscedasticity, independence, influential observations. Provide diagnostic plots. If assumptions are violated, state how the model or interpretation was adjusted.)*
+
+```{r}
+#| label: diagnostics
+#| fig-cap: "Residual diagnostics for the primary model."
+
+# plot(model_main)
+# qqnorm(resid(model_main)); qqline(resid(model_main))
+```
+
+# Inference and effect sizes
+
+*(Report point estimates, confidence intervals, and p-values for all primary and secondary outcomes. Always pair p-values with effect size estimates and their precision. Avoid reporting p-values in isolation.)*
+
+```{r}
+#| label: inference-table
+
+# library(parameters)
+# model_parameters(model_main) |>
+#   kable(digits = 3, booktabs = TRUE, caption = "Primary model estimates.")
+```
+
+# Sensitivity analyses
+
+*(Report pre-specified or exploratory sensitivity analyses: alternative model specifications, outlier removal, subgroup analyses, imputation strategies. State which conclusions are robust and which are contingent on analytic choices.)*
+
+# Figures and tables for the main manuscript
+
+*(Final, publication-ready versions of all figures and tables referenced in the manuscript. Code must be fully self-contained and reproducible from this document alone.)*
+
+```{r}
+#| label: fig-main
+#| fig-cap: "Main manuscript figure — replace with actual plot."
+#| fig-width: 6
+#| fig-height: 4
+
+# Final figure code here
+```
+
+# Conclusions and next steps
+
+*(Summarize the statistical conclusions of this version and recommend follow-up analyses or design adjustments for future experiments where applicable.)*
+
+# References
+
+*(Statistical and methodological references used in this report, if not already cited in the main manuscript.)*
+
+# Session information
+
+```{r}
+#| label: session-info-r
+
+# sessionInfo()
+```
+
+```{python}
+#| label: session-info-python
+#| eval: false
+
+# Uncomment when using Python engine
+# import sys, platform, importlib.metadata
+# print(f"Python {sys.version}\nPlatform: {platform.platform()}")
+# for pkg in ["pandas","numpy","scipy","statsmodels","matplotlib","seaborn"]:
+#     try:    print(f"{pkg}: {importlib.metadata.version(pkg)}")
+#     except: pass
+```
