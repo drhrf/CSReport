@@ -25,6 +25,7 @@ along with institutional branding assets and rendering instructions.
 ```
 CSReport/
 ├── StatReport_Template.qmd   # Main CSR template
+├── StatReport_Template.pdf   # Knitted CSR template PDF
 ├── NEC_logo.jpeg             # Institutional logo (required for PDF rendering)
 ├── nec_params.tex            # Auto-generated at render time (do not edit)
 └── README.md                 # This file
