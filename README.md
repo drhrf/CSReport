@@ -145,15 +145,15 @@ iteration and its corresponding manuscript version.
 
 If you use this template in your work, please cite the associated manuscript:
 
-> [Maria Clara Salgado Ramos, Alex Oliveira da Câmara, and Hercules Rezende Freitas].
+> Maria Clara Salgado Ramos, Alex Oliveira da Câmara, and Hercules Rezende Freitas.
 > From Pipettes to P-Values: A Quarto Template for Companion Statistical Reporting in Experimental Neuroscience.
-> [manuscript under peer-review].
+> (under peer-review).
 
 ---
 
 ## License
 
-[CC BY 4.0]
+Creative Commons 4.0
 
 ---
 
