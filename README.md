@@ -5,6 +5,8 @@ reporting in experimental neuroscience, developed by the
 **Bertrand Russell Research Excellence Group (NEC)**,
 School of Medicine, Rio de Janeiro State University (UERJ).
 
+[![DOI](https://img.shields.io/badge/DOI-10.3390%2Fstandards6020013-blue)](https://doi.org/10.3390/standards6020013)
+
 ---
 
 ## Overview
@@ -176,11 +178,24 @@ iteration and its corresponding manuscript version.
 
 ## Citation
 
-If you use this template in your work, please cite the associated manuscript:
+If you use this template in your work, please cite the associated publication:
 
-> Maria Clara Salgado Ramos, Alex Oliveira da Câmara, and Hercules Rezende Freitas.
-> From Pipettes to P-Values: A Quarto Template for Companion Statistical Reporting in Experimental Neuroscience.
-> (under peer-review).
+> Salgado Ramos, M. C., da Câmara, A. O., & Freitas, H. R. (2026).
+> From Pipettes to p-Values: A Framework for Companion Statistical Reporting in Experimental Neuroscience.
+> *Standards*, *6*(2), 13. https://doi.org/10.3390/standards6020013
+
+```bibtex
+@article{salgadoramos2026pipettes,
+  author  = {Salgado Ramos, Maria Clara and da C{\^a}mara, Alex Oliveira and Freitas, Hercules Rezende},
+  title   = {From Pipettes to p-Values: A Framework for Companion Statistical Reporting in Experimental Neuroscience},
+  journal = {Standards},
+  year    = {2026},
+  volume  = {6},
+  number  = {2},
+  pages   = {13},
+  doi     = {10.3390/standards6020013}
+}
+```
 
 ---
 
