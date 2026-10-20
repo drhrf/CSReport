@@ -1,0 +1,217 @@
+---
+title: "Companion Statistical Report"
+subtitle: "Enriched housing and spatial memory in mice (teaching example)"
+lang: en
+date: today
+format:
+  html:
+    toc: true
+    number-sections: true
+    embed-resources: true
+    code-fold: false
+  docx:
+    toc: true
+    number-sections: true
+params:
+  manuscript_title:       "Enriched housing and spatial memory in mice"
+  principal_investigator: "Your PI's name"
+  statistical_analyst:    "Your name"
+  version_code:           "NECS01V01D0001"
+execute:
+  echo: true
+  message: false
+  warning: false
+---
+
+<!--
+HOW TO USE THIS FILE
+1. Open it in RStudio or Positron (both include Quarto).
+2. Keep maze.csv in the same folder as this file.
+3. Click "Render". You get an HTML file and a Word file.
+4. To adapt it to your project: change the params above, replace
+   maze.csv with your data, and rewrite the text in each section.
+This file uses base R only: no extra packages to install.
+-->
+
+```{r}
+#| label: check-version
+#| include: false
+# The report refuses to render if the version code is malformed.
+if (!grepl("^NECS\\d{2}V\\d{2}D\\d{4}$", params$version_code)) {
+  stop("Invalid version code. Use the format NECSXXVXXDXXXX.")
+}
+```
+
+|                         |                                   |
+|-------------------------|-----------------------------------|
+| **Manuscript**          | `r params$manuscript_title`       |
+| **Principal investigator** | `r params$principal_investigator` |
+| **Statistical analyst** | `r params$statistical_analyst`    |
+| **Version code**        | `r params$version_code`           |
+
+# About this document
+
+This Companion Statistical Report (CSR) accompanies the manuscript named
+above. It records every decision taken between the raw data and the numbers
+reported in the paper. The data are simulated for teaching.
+
+# Analysis request and scope
+
+**Question.** Do mice housed in an enriched environment find the hidden
+platform of a water maze faster than mice in standard housing?
+
+**Primary outcome.** Escape latency (seconds) on the probe day, averaged over
+four trials per mouse.
+
+**Pre-specified hypothesis.** Enriched mice have a shorter mean latency than
+standard-housed mice. The effect of interest is the difference in means
+(standard minus enriched), reported with its 95% confidence interval.
+
+**Changes from the previous version.** None (first version).
+
+# Data provenance and preprocessing
+
+## Data source
+
+Twelve mice (six per housing condition) were tested in four trials each.
+Trials were capped at 60 s. The raw file is `maze.csv`, one row per trial.
+
+```{r}
+#| label: data-import
+maze <- read.csv("maze.csv")
+maze$group <- factor(maze$group, levels = c("standard", "enriched"))
+str(maze)
+table(maze$group) / 4   # mice per group
+```
+
+## Unit of analysis
+
+The mouse, not the trial, is the experimental unit: housing was assigned to
+mice, and the four trials of one mouse are not independent. Trials are
+therefore averaged within each mouse before any comparison.
+
+```{r}
+#| label: mouse-means
+mice <- aggregate(latency_s ~ mouse_id + group, data = maze, FUN = mean)
+mice
+```
+
+## Exclusions
+
+Rule written in the protocol before testing: *a mouse is excluded if it reaches
+the 58 s mark in at least three of its four trials (non-swimming or floating).*
+
+```{r}
+#| label: exclusions
+slow_trials <- tapply(maze$latency_s >= 58, maze$mouse_id, sum)
+excluded    <- names(slow_trials[slow_trials >= 3])
+excluded
+
+mice_clean <- mice[!mice$mouse_id %in% excluded, ]
+table(mice_clean$group)
+```
+
+`r length(excluded)` mouse was excluded (`r excluded`), leaving
+`r nrow(mice_clean)` mice for the primary analysis.
+
+# Exploratory data analysis
+
+```{r}
+#| label: fig-eda
+#| fig-cap: "Escape latency per trial (grey) and per mouse mean (black). The red ring marks the excluded mouse."
+#| fig-width: 7
+#| fig-height: 4
+stripchart(latency_s ~ group, data = maze, vertical = TRUE, method = "jitter",
+           pch = 16, col = "grey70", ylab = "Escape latency (s)", ylim = c(0, 62))
+stripchart(latency_s ~ group, data = mice, vertical = TRUE, add = TRUE,
+           pch = 19, cex = 1.4)
+ex <- mice[mice$mouse_id %in% excluded, ]
+points(as.numeric(ex$group), ex$latency_s, cex = 2.6, col = "red", lwd = 2)
+```
+
+```{r}
+#| label: eda-summary
+aggregate(latency_s ~ group, data = mice_clean,
+          FUN = function(x) c(n = length(x), mean = mean(x), sd = sd(x)))
+```
+
+# Statistical model
+
+Welch two-sample t-test on mouse means. Welch's version is chosen because it
+does not assume equal variances in the two groups. With six mice per group,
+formal normality tests have little power; the dot plot above was inspected
+instead and shows no strong skew after the pre-specified exclusion.
+
+```{r}
+#| label: model
+res <- t.test(latency_s ~ group, data = mice_clean)
+res
+```
+
+# Inference and effect sizes
+
+```{r}
+#| label: effect
+diff <- unname(res$estimate[1] - res$estimate[2])
+ci   <- res$conf.int
+```
+
+Standard-housed mice took on average **`r round(diff, 1)` s** longer to reach
+the platform than enriched mice (95% CI `r round(ci[1], 1)` to
+`r round(ci[2], 1)` s; p = `r signif(res$p.value, 2)`).
+
+Every number in the sentence above is computed by the code. Nothing was typed
+by hand.
+
+# Sensitivity analyses
+
+What if the excluded mouse had been kept?
+
+```{r}
+#| label: sensitivity
+res_all <- t.test(latency_s ~ group, data = mice)
+c(difference = unname(res_all$estimate[1] - res_all$estimate[2]),
+  ci_low = res_all$conf.int[1], ci_high = res_all$conf.int[2],
+  p = res_all$p.value)
+```
+
+With the excluded mouse kept, the difference shrinks to
+`r round(res_all$estimate[1] - res_all$estimate[2], 1)` s and the interval
+includes zero. The conclusion depends on the exclusion rule, which is why the
+rule was fixed before testing and is reported here.
+
+# Figures and tables for the main manuscript
+
+```{r}
+#| label: fig-main
+#| fig-cap: "Figure 1 of the manuscript. Mouse means with group mean and 95% CI."
+#| fig-width: 5
+#| fig-height: 4
+m  <- tapply(mice_clean$latency_s, mice_clean$group, mean)
+se <- tapply(mice_clean$latency_s, mice_clean$group, function(x) sd(x) / sqrt(length(x)))
+tc <- qt(0.975, df = table(mice_clean$group) - 1)
+stripchart(latency_s ~ group, data = mice_clean, vertical = TRUE, pch = 19,
+           col = "grey40", ylab = "Escape latency (s)", ylim = c(0, 50),
+           xlim = c(0.5, 2.5))
+arrows(1:2, m - tc * se, 1:2, m + tc * se, angle = 90, code = 3, length = 0.08, lwd = 2)
+points(1:2, m, pch = 95, cex = 4)
+```
+
+# Conclusions and next steps
+
+Under the pre-specified analysis, enriched housing was associated with shorter
+escape latencies. The interval is wide and the result is sensitive to one
+exclusion, so a larger replication with a pre-registered sample size is
+recommended.
+
+# References
+
+Welch BL (1947). The generalization of Student's problem when several
+different population variances are involved. *Biometrika* 34:28–35.
+
+# Session information
+
+```{r}
+#| label: session-info
+sessionInfo()
+```

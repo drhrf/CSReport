@@ -1,0 +1,38 @@
+<script>
+(function () {
+  function fmt(s) {
+    var m = Math.floor(s / 60), r = s % 60;
+    return (m < 10 ? "0" : "") + m + ":" + (r < 10 ? "0" : "") + r;
+  }
+  function setup(el) {
+    var minutes = parseFloat(el.getAttribute("data-minutes") || "5");
+    var total = Math.round(minutes * 60), left = total, id = null;
+    var disp = document.createElement("span");
+    disp.className = "timer-display";
+    disp.textContent = fmt(left);
+    var start = document.createElement("button");
+    start.textContent = "start";
+    var reset = document.createElement("button");
+    reset.textContent = "reset";
+    el.appendChild(disp); el.appendChild(start); el.appendChild(reset);
+    function tick() {
+      left -= 1;
+      disp.textContent = fmt(Math.max(left, 0));
+      if (left <= 0) { clearInterval(id); id = null; el.classList.add("timer-done"); start.textContent = "start"; }
+    }
+    start.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (id) { clearInterval(id); id = null; start.textContent = "start"; }
+      else { if (left <= 0) { left = total; el.classList.remove("timer-done"); } id = setInterval(tick, 1000); start.textContent = "pause"; }
+    });
+    reset.addEventListener("click", function (e) {
+      e.stopPropagation();
+      clearInterval(id); id = null; left = total;
+      el.classList.remove("timer-done"); disp.textContent = fmt(left); start.textContent = "start";
+    });
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".timer-wrap").forEach(setup);
+  });
+})();
+</script>
